@@ -32,6 +32,24 @@ var albumMarconi = {
     ]
 };
 
+// Assignment #11 New Album
+
+var albumWhat = {
+    title: 'Off the Rails',
+    artist: 'PJ Faust',
+    label: 'Dante',
+    year: '1689',
+    albumArtUrl: 'assets/images/album_covers/05.png',
+    songs: [
+        { title: 'Brimstone Calling', duration: '15:09' },
+        { title: 'Mother\'s Milk', duration: '7:15' },
+        { title: 'Limbo', duration: '8:02' },
+        { title: 'Three Days', duration: '3:14' },
+        { title: '1,000 Years', duration: '22:47' },
+    ]
+};
+
+
 var createSongRow = function (songNumber, songName, songLength) {
     var template =
         '<tr class="album-view-song-item">'
@@ -44,13 +62,14 @@ var createSongRow = function (songNumber, songName, songLength) {
     return template;
 };
 
-var setCurrentAlbum = function (album) {
-    // #1
-    var albumTitle = document.getElementsByClassName('album-view-title')[0];
-    var albumArtist = document.getElementsByClassName('album-view-artist')[0];
-    var albumReleaseInfo = document.getElementsByClassName('album-view-release-info')[0];
-    var albumImage = document.getElementsByClassName('album-cover-art')[0];
-    var albumSongList = document.getElementsByClassName('album-view-song-list')[0];
+// switch these to global so event listener can access them
+var albumTitle = document.getElementsByClassName('album-view-title')[0];
+var albumArtist = document.getElementsByClassName('album-view-artist')[0];
+var albumReleaseInfo = document.getElementsByClassName('album-view-release-info')[0];
+var albumImage = document.getElementsByClassName('album-cover-art')[0];
+var albumSongList = document.getElementsByClassName('album-view-song-list')[0];
+
+var setCurrentAlbum = function(album) {
 
     // #2
     albumTitle.firstChild.nodeValue = album.title;
@@ -69,4 +88,25 @@ var setCurrentAlbum = function (album) {
 
 window.onload = function() {
     setCurrentAlbum(albumPicasso);
+
 };
+
+// Assignment #11 Listener Event
+
+// create array of album choices + placeholder variable for index
+var albumList = [albumPicasso, albumMarconi, albumWhat];
+var i = 1;
+
+// create click event
+albumImage.addEventListener("click", function(event) {
+
+    // change current album
+    setCurrentAlbum(albumList[i]);
+    i++;
+
+    // start back at zero if you're on last index
+    if(i == albumList.length) {
+        i = 0;
+    }
+});
+
