@@ -161,15 +161,17 @@ window.onload = function() {
         // Only target individual song rows during event delegation
         if (event.target.parentElement.className === 'album-view-song-item') {
 
-            // Change the content from the number to the play button's HTML
-            event.target.parentElement.querySelector('.song-item-number').innerHTML = playButtonTemplate;
+            // store song item number of clicked element
+            var songItem = getSongItem(event.target);
 
-            var songItem = getSongItem(target.element);
-
+            // if the clicked element is not the currently playing song
             if(songItem.getAttribute('data-song-number') !== currentlyPlayingSong) {
+
+                // Change the content from the number to the play button's HTML
                 songItem.innerHTML = playButtonTemplate;
             }
         }
+        // looks like the song-item-number is no longer triggering an event on mouseover, only other elements (song.item, song.title, song.duration) trigger the event
     });
 
     for (var i = 0; i < songRows.length; i++) {
@@ -188,6 +190,7 @@ window.onload = function() {
 
                 songItem.innerHTML = songItemNumber;
             }
+
         });
 
         songRows[i].addEventListener('click', function (event) {
