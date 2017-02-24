@@ -94,7 +94,7 @@ var getSongItem = function (element) {
             return findParentByClassName (element, 'album-view-song-item').querySelector ('.song-item-number');
             break;
 
-        case '.song-item-number':
+        case 'song-item-number':
             return element;
             break;
 
