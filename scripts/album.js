@@ -68,13 +68,22 @@ var setCurrentAlbum = function (album) {
 };
 
 var findParentByClassName = function (element, targetClass) {
+    console.log(element);
+    console.log(targetClass);
     if (element) {
         var currentParent = element.parentElement;
         while (currentParent.className != targetClass && currentParent.className !== null) {
             currentParent = currentParent.parentElement;
         }
         return currentParent;
+
+    } else if (element === undefined || element.parentElement === null) {
+        console.log('No parent found');
+
+    } else if (element === true && currentParent.className !== targetClass) {
+        console.log('No parent found with that class name');
     }
+
 };
 
 var getSongItem = function (element) {
@@ -94,7 +103,7 @@ var getSongItem = function (element) {
             return findParentByClassName (element, 'album-view-song-item').querySelector ('.song-item-number');
             break;
 
-        case '.song-item-number':
+        case 'song-item-number':
             return element;
             break;
 
@@ -160,9 +169,11 @@ window.onload = function() {
 
         // Only target individual song rows during event delegation
         if (event.target.parentElement.className === 'album-view-song-item') {
-
+            console.log(event.target);
             // store song item number of clicked element
             var songItem = getSongItem(event.target);
+
+
 
             // if the clicked element is not the currently playing song
             if(songItem.getAttribute('data-song-number') !== currentlyPlayingSong) {
