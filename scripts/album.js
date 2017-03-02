@@ -68,22 +68,25 @@ var setCurrentAlbum = function (album) {
 };
 
 var findParentByClassName = function (element, targetClass) {
-    console.log(element);
-    console.log(targetClass);
-    if (element) {
+
+    if (element === undefined || element.parentElement === null) {
+        console.log('No parent found');
+    }
+
+    else {
         var currentParent = element.parentElement;
         while (currentParent.className != targetClass && currentParent.className !== null) {
             currentParent = currentParent.parentElement;
+        } // if the targetClass doesn't match, will the currentParent end up undefined? need to test...
+
+    // need to either return the current parent if the targetClass matches or console.log the 'No parent found' stmnt
+        if (currentParent === undefined) {
+            console.log('No parent found with that class name');
+        } else {
+            return currentParent;
         }
-        return currentParent;
-
-    } else if (element === undefined || element.parentElement === null) {
-        console.log('No parent found');
-
-    } else if (element === true && currentParent.className !== targetClass) {
-        console.log('No parent found with that class name');
     }
-
+    // Is the above too much nesting?
 };
 
 var getSongItem = function (element) {
