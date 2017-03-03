@@ -75,18 +75,20 @@ var findParentByClassName = function (element, targetClass) {
 
     else {
         var currentParent = element.parentElement;
+    }
+
+    // appears this is skipped entirely when page runs - trying to address error read on line 86 'cannot read property 'className' of null when 'targetClass' provided will never be found, i.e. the 'targetClass' requested is NOT a parent of the 'targetElement', function works fine otherwise
+    if (currentParent === null) {
+         console.log('No parent found with that class name'); // this 'if' statement is not valid, but ????
+
+    } else {
+
         while (currentParent.className != targetClass && currentParent.className !== null) {
             currentParent = currentParent.parentElement;
-        } // if the targetClass doesn't match, will the currentParent end up undefined? need to test...
-
-    // need to either return the current parent if the targetClass matches or console.log the 'No parent found' stmnt
-        if (currentParent === undefined) {
-            console.log('No parent found with that class name');
-        } else {
-            return currentParent;
         }
-    }
-    // Is the above too much nesting?
+
+        return currentParent;
+        }
 };
 
 var getSongItem = function (element) {
@@ -137,10 +139,8 @@ var clickHandler = function (targetElement) {
     // if the clicked song is not the active song
     } else if (currentlyPlayingSong !== songItem.getAttribute('data-song-number')) {
 
-        // Go over this with KEVIN
         var currentlyPlayingSongElement = document.querySelector('[data-song-number="' + currentlyPlayingSong + '"]');
 
-        // Go over this with KEVIN
         currentlyPlayingSongElement.innerHTML = currentlyPlayingSongElement.getAttribute('data-song-number');
 
         // set content of new song to pause button
