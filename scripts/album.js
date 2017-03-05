@@ -75,20 +75,14 @@ var findParentByClassName = function (element, targetClass) {
 
     else {
         var currentParent = element.parentElement;
-    }
-
-    // appears this is skipped entirely when page runs - trying to address error read on line 86 'cannot read property 'className' of null when 'targetClass' provided will never be found, i.e. the 'targetClass' requested is NOT a parent of the 'targetElement', function works fine otherwise
-    if (currentParent === null) {
-         console.log('No parent found with that class name'); // this 'if' statement is not valid, but ????
-
-    } else {
 
         while (currentParent.className != targetClass && currentParent.className !== null) {
             currentParent = currentParent.parentElement;
-        }
-
-        return currentParent;
-        }
+            if (currentParent === null) {
+                console.log('No parent found with that class name');
+            }
+        } return currentParent;
+    }
 };
 
 var getSongItem = function (element) {
