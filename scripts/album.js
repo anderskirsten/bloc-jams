@@ -134,7 +134,76 @@ var trackIndex = function(album, song) {
     return album.songs.indexOf(song);
 };
 
-var nextSong = function() {
+var whatSong = function() {
+    var target = $(event.target).attr('class')
+    console.log(target);
+
+    if (target === 'ion-skip-forward') {
+        // find & store the last song played
+        var getLastSongNumber = function(index) {
+            return index == 0 ? currentAlbum.songs.length : index;
+        };
+
+        // use trackIndex() to get the current song's index & then increment the value of the index
+        var currentSongIndex = trackIndex(currentAlbum, currentSongFromAlbum);
+        currentSongIndex++;
+
+        // account for the next song being the first song, as when you're on the final song, you should wrap around to the first song
+        if(currentSongIndex >= currentAlbum.songs.length) { currentSongIndex = 0; }
+
+        // set the new current song to currentSongFromAlbum
+        setSong(currentSongIndex + 1);
+
+        // update the player bar to show the new song
+        updatePlayerBarSong();
+
+        // update the html of the previous song's '.song-item-number' element with a number
+        var lastSongNumber = getLastSongNumber(currentSongIndex);
+
+        var $nextSongNumberCell = getSongNumberCell(currentlyPlayingSongNumber);
+
+        var $lastSongNumberCell = getSongNumberCell(lastSongNumber);
+        $lastSongNumberCell.html(lastSongNumber);
+
+        // update the html of the new song's '.song-item-number' element with a pause button
+        $nextSongNumberCell.html(pauseButtonTemplate);
+
+    } else {
+        // find & store the last song played
+        var getLastSongNumber = function(index) {
+            return index ==  (currentAlbum.songs.length - 1) ? 1 : index + 2 ;
+        };
+
+        // use trackIndex() to get the current song's index & then decrement the value of the index
+        var currentSongIndex = trackIndex(currentAlbum, currentSongFromAlbum);
+        currentSongIndex--;
+
+        //account for the previous song being the last song, as when you're on the first song, you should wrap around to the last song
+        if(currentSongIndex < 0) {currentSongIndex = currentAlbum.songs.length - 1;}
+
+        // set the new current song to currentSongFromAlbum
+        setSong(currentSongIndex + 1);
+
+        // update the player bar to show the new song
+        updatePlayerBarSong();
+
+        // it's already the last step in the updatePlayerBarSong(), why include here? works fine without it...
+        // $('.main-controls .play-pause').html(playerBarPauseButton);
+
+        // update the html of the following song's '.song-item-number' element with a number
+        var lastSongNumber = getLastSongNumber(currentSongIndex);
+
+        var $previousSongNumberCell = getSongNumberCell(currentlyPlayingSongNumber);
+
+        var $lastSongNumberCell = getSongNumberCell(lastSongNumber);
+        $lastSongNumberCell.html(lastSongNumber);
+
+        // update the html of the new song's '.song-item-number' element with a pause button
+        $previousSongNumberCell.html(pauseButtonTemplate);
+    }
+};
+
+/* var nextSong = function() {
 
     // find & store the last song played
     var getLastSongNumber = function(index) {
@@ -169,7 +238,7 @@ var nextSong = function() {
 
 var previousSong = function() {
 
-    // find & store the last song
+    // find & store the last song played
     var getLastSongNumber = function(index) {
         return index ==  (currentAlbum.songs.length - 1) ? 1 : index + 2 ;
     };
@@ -200,7 +269,7 @@ var previousSong = function() {
 
     // update the html of the new song's '.song-item-number' element with a pause button
     $previousSongNumberCell.html(pauseButtonTemplate);
-};
+}; */
 
 var setSong = function(songNumber) {
     // assign value to currentlyPlayingSongNumber
@@ -238,6 +307,6 @@ var $nextButton = $('.main-controls .next');
 
 $(document).ready(function() {
     setCurrentAlbum(albumPicasso);
-    $previousButton.click(previousSong);
-    $nextButton.click(nextSong);
+    $previousButton.click(whatSong);
+    $nextButton.click(whatSong);
 });
