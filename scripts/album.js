@@ -31,21 +31,37 @@ var createSongRow = function (songNumber, songName, songLength) {
             // set currentlyPlayingSong to new song's number & currentSongFromAlbum to new value
             setSong(songNumber);
 
-            // change player bar accordingly - tested & functioning correctly
+            // play the currentSoundFile
+            currentSoundFile.play();
+
+            // change player bar accordingly
             updatePlayerBarSong();
 
         } else if (currentlyPlayingSongNumber === songNumber) {
-            // change from pause back to play button
-            $(this).html(playButtonTemplate);
 
-            // change player bar pause icon to play
-            $('.main-controls .play-pause').html(playerBarPlayButton);
+            // check if currentSoundFile is paused - use Buzz method `isPaused()`
+            if (currentSoundFile.isPaused()) {
 
-            // set currentlyPlayingSong to null
-            currentlyPlayingSongNumber = null;
+                // restart song to play - use Buzz method `play()`
+                currentSoundFile.play();
 
-            // set currentSongFromAlbum back to null since nothing is playing
-            currentSongFromAlbum = null;
+                // revert song row to pause
+                $(this).html(pauseButtonTemplate);
+
+                // revert player bar icon to pause
+                $('.main-controls .play-pause').html(playerBarPauseButton);
+
+            } else {
+
+                // stop the song - use Buzz method `pause()`
+                currentSoundFile.pause();
+
+                // set song number cell content to play
+                $(this).html(playButtonTemplate);
+
+                // set player bar's pause button back to play
+                $('.main-controls .play-pause').html(playerBarPlayButton);
+            }
         }
     };
 
@@ -151,6 +167,9 @@ var nextSong = function() {
     // set the new current song to currentSongFromAlbum
     setSong(currentSongIndex + 1);
 
+    // play songs when skipping
+    currentSoundFile.play();
+
     // update the player bar to show the new song
     updatePlayerBarSong();
 
@@ -184,11 +203,11 @@ var previousSong = function() {
     // set the new current song to currentSongFromAlbum
     setSong(currentSongIndex + 1);
 
+    // play songs when skipping
+    currentSoundFile.play();
+
     // update the player bar to show the new song
     updatePlayerBarSong();
-
-    // ASK KEVIN ABOUT THIS - it's already the last step in the updatePlayerBarSong(), why include here? works fine without it...
-    // $('.main-controls .play-pause').html(playerBarPauseButton);
 
     // update the html of the following song's '.song-item-number' element with a number
     var lastSongNumber = getLastSongNumber(currentSongIndex);
@@ -203,11 +222,36 @@ var previousSong = function() {
 };
 
 var setSong = function(songNumber) {
+
+    // check if a song is already playing
+    if(currentSoundFile) {
+        // if true - stop the song
+        currentSoundFile.stop();
+    }
+
     // assign value to currentlyPlayingSongNumber
     currentlyPlayingSongNumber = parseInt(songNumber);
 
     // assign value to currentSongFromAlbum
     currentSongFromAlbum = currentAlbum.songs[songNumber - 1];
+
+    // assign new Buzz 'sound' object
+    currentSoundFile = new buzz.sound(currentSongFromAlbum.audioURL, {
+        // indicates song file type
+        formats: ['mp3'],
+        // tells Buzz to load the songs as soon as the page loads
+        preload: true
+    });
+
+    // control song volume
+    setVolume(currentVolume);
+};
+
+// if a song is playing, set the volume
+var setVolume = function(volume) {
+    if(currentSoundFile) {
+        currentSoundFile.setVolume(volume);
+    }
 };
 
 var getSongNumberCell = function(number){
@@ -231,6 +275,12 @@ var currentlyPlayingSongNumber = null;
 
 // Placeholder for currently selected song on the currently selected album
 var currentSongFromAlbum = null;
+
+// Placeholder for 'sound' object - reference Buzz constructor
+var currentSoundFile = null;
+
+// Set initial song volume - Buzz 1-100 scale
+var currentVolume = 80;
 
 // Variables to hold jQuery selectors for next & previous buttons
 var $previousButton = $('.main-controls .previous');
