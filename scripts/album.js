@@ -25,14 +25,20 @@ var createSongRow = function (songNumber, songName, songLength) {
 
         if (currentlyPlayingSongNumber !== songNumber) {
 
-            // set the songItem's content from play to pause
-            $(this).html(pauseButtonTemplate);
-
             // set currentlyPlayingSong to new song's number & currentSongFromAlbum to new value
             setSong(songNumber);
 
             // play the currentSoundFile
             currentSoundFile.play();
+            updateSeekBarWhileSongPlays();
+
+            var $volumeFill = $('.volume .fill');
+            var $volumeThumb = $('.volume .thumb');
+            $volumeFill.width(currentVolume + '%');
+            $volumeThumb.css({left: currentVolume + '%'});
+
+            // set the songItem's content from play to pause
+            $(this).html(pauseButtonTemplate);
 
             // change player bar accordingly
             updatePlayerBarSong();
@@ -44,6 +50,7 @@ var createSongRow = function (songNumber, songName, songLength) {
 
                 // restart song to play - use Buzz method `play()`
                 currentSoundFile.play();
+                updateSeekBarWhileSongPlays();
 
                 // revert song row to pause
                 $(this).html(pauseButtonTemplate);
@@ -145,6 +152,100 @@ var setCurrentAlbum = function (album) {
     }
 };
 
+var updateSeekBarWhileSongPlays = function() {
+    if (currentSoundFile) {
+
+        // bind timeupdate event - Buzz method - fires repeatedly while time elapses during song playback
+        currentSoundFile.bind('timeupdate', function(event) {
+
+            // use Buzz method getTime() & getDuration() methods - both return values in seconds units
+            var seekBarFillRatio = this.getTime() / this.getDuration();
+            var $seekBar = $('.seek-control .seek-bar');
+
+            updateSeekBarPercentage($seekBar, seekBarFillRatio);
+        });
+    }
+};
+
+var updateSeekBarPercentage = function($seekBar, seekBarFillRatio) {
+
+    // multiply ratio by 100 to get percentage
+    var offsetXPercent = seekBarFillRatio * 100;
+
+    // make sure percentage isn't less than 0 or more than 100
+    offsetXPercent = Math.max(0, offsetXPercent);
+    offsetXPercent = Math.min(100, offsetXPercent);
+
+    // convert percentage to string
+    var percentageString = offsetXPercent + '%';
+
+    // allows css to interpret string as percentage instead of unit-less number
+    $seekBar.find('.fill').width(percentageString);
+    $seekBar.find('.thumb').css({left: percentageString});
+};
+
+var setupSeekBars = function() {
+    // find all elements in the DOM with '.seek-bar' class with the '.player-bar' parent class, returns an array with both the song duration & volume seekbars
+    var $seekBars = $('.player-bar .seek-bar');
+
+    // whichever seekbar is clicked
+    $seekBars.click(function(event) {
+
+        // subtract left offset of where song duration was at moment of event from point of click event - returns proportion of seek bar
+        var offsetX = event.pageX - $(this).offset().left;
+
+        // returns total width of selected bar
+        var barWidth = $(this).width();
+
+        var seekBarFillRatio = offsetX / barWidth;
+
+        // if the clicked seekbar is the playback bar, seek to the position of the song determined by seekBarFillRatio
+        if ($(this).parent().attr('class') == 'seek-control') {
+            seek(seekBarFillRatio * currentSoundFile.getDuration());
+
+        } // else set the volume based on seekBarFillRatio
+
+        else {
+            setVolume(seekBarFillRatio * 100);
+        }
+
+        updateSeekBarPercentage($(this), seekBarFillRatio);
+    });
+
+    // find elements with '.thumb' class in the seekbars and add an event listener for mousedown event
+    $seekBars.find('.thumb').mousedown(function(event) {
+
+        // 'this' = the '.thumb' node that was clicked, finds the clicked element's parent to id which seekbar we're dealing with
+        var $seekBar = $(this).parent();
+
+        // '.bind()' allows us to namespace event listeners - the event handler inside the bind() call behaves the same as a .click - in this case .thumb is an arbitrary identifier - namespace - and is not the same as the css selector used above
+        // mousemove allows user to continue control event if mouse moves away from seekbar as long as mousedown is still in effect
+        $(document).bind('mousemove.thumb', function(event) {
+            var offsetX = event.pageX - $seekBar.offset().left;
+            var barWidth = $seekBar.width();
+            var seekBarFillRatio = offsetX / barWidth;
+
+            // if the clicked seekbar is the playback bar, seek to the position of the song determined by seekBarFillRatio
+            if ($(this).parent().attr('class') == 'seek-control') {
+                seek(seekBarFillRatio * currentSoundFile.getDuration());
+
+            } // else set the volume based on seekBarFillRatio
+
+            else {
+                setVolume(seekBarFillRatio * 100);
+            }
+
+            updateSeekBarPercentage($seekBar, seekBarFillRatio);
+        });
+
+        $(document).bind('mouseup.thumb', function() {
+            // removes previous event listeners so control stops when user releases mouse button
+            $(document).unbind('mousemove.thumb');
+            $(document).unbind('mouseup.thumb');
+        });
+    });
+};
+
 // returns the index of a song found in the album's song array
 var trackIndex = function(album, song) {
     return album.songs.indexOf(song);
@@ -169,6 +270,7 @@ var nextSong = function() {
 
     // play songs when skipping
     currentSoundFile.play();
+    updateSeekBarWhileSongPlays();
 
     // update the player bar to show the new song
     updatePlayerBarSong();
@@ -183,7 +285,6 @@ var nextSong = function() {
 
     // update the html of the new song's '.song-item-number' element with a pause button
     $nextSongNumberCell.html(pauseButtonTemplate);
-
 };
 
 var previousSong = function() {
@@ -205,6 +306,7 @@ var previousSong = function() {
 
     // play songs when skipping
     currentSoundFile.play();
+    updateSeekBarWhileSongPlays();
 
     // update the player bar to show the new song
     updatePlayerBarSong();
@@ -219,6 +321,7 @@ var previousSong = function() {
 
     // update the html of the new song's '.song-item-number' element with a pause button
     $previousSongNumberCell.html(pauseButtonTemplate);
+
 };
 
 var setSong = function(songNumber) {
@@ -245,6 +348,13 @@ var setSong = function(songNumber) {
 
     // control song volume
     setVolume(currentVolume);
+};
+
+// change the position in a song's playback to a specified time
+var seek = function(time) {
+    if (currentSoundFile) {
+        currentSoundFile.setTime(time);
+    }
 };
 
 // if a song is playing, set the volume
@@ -290,4 +400,5 @@ $(document).ready(function() {
     setCurrentAlbum(albumPicasso);
     $previousButton.click(previousSong);
     $nextButton.click(nextSong);
+    setupSeekBars();
 });
