@@ -3,7 +3,7 @@ var createSongRow = function (songNumber, songName, songLength) {
       '<tr class="album-view-song-item">'
     + '        <td class="song-item-number" data-song-number="' + songNumber + '">' + songNumber + '</td>'
     + '        <td class="song-item-title">' + songName + '</td>'
-    + '        <td class="song-item-duration">' + songLength + '</td>'
+    + '        <td class="song-item-duration">' + filterTimeCode(songLength) + '</td>'
     + '</tr>'
     ;
 
@@ -110,22 +110,6 @@ var createSongRow = function (songNumber, songName, songLength) {
     return $row;
 };
 
-// updates player bar text to show current song title & for mobile devices - song title + artist
-var updatePlayerBarSong = function() {
-
-    // change currently playing song name to currentSongFromAlbum's title
-    $('.currently-playing .song-name').text(currentSongFromAlbum.title);
-
-    // change the content of the '.artist-name' to currentAlbum.artist
-    $('.currently-playing .artist-name').text(currentAlbum.artist);
-
-    // change content of the '.artist-song-mobile' to song title & artist
-    $('.currently-playing .artist-song-mobile').text(currentSongFromAlbum.title + ' - ' + currentAlbum.artist);
-
-    // change play icon to pause on player bar
-    $('.main-controls .play-pause').html(playerBarPauseButton);
-};
-
 var setCurrentAlbum = function (album) {
 
     // set the function argument to the current album
@@ -152,6 +136,153 @@ var setCurrentAlbum = function (album) {
     }
 };
 
+var setSong = function(songNumber) {
+
+    // check if a song is already playing
+    if(currentSoundFile) {
+        // if true - stop the song
+        currentSoundFile.stop();
+    }
+
+    // assign value to currentlyPlayingSongNumber
+    currentlyPlayingSongNumber = parseInt(songNumber);
+
+    // assign value to currentSongFromAlbum
+    currentSongFromAlbum = currentAlbum.songs[songNumber - 1];
+
+    // assign new Buzz 'sound' object
+    currentSoundFile = new buzz.sound(currentSongFromAlbum.audioURL, {
+        // indicates song file type
+        formats: ['mp3'],
+        // tells Buzz to load the songs as soon as the page loads
+        preload: true
+    });
+
+    // control song volume
+    setVolume(currentVolume);
+};
+
+var nextSong = function() {
+
+    // find & store the last song played
+    var getLastSongNumber = function(index) {
+        return index == 0 ? currentAlbum.songs.length : index;
+    };
+
+    // use trackIndex() to get the current song's index & then increment the value of the index
+    var currentSongIndex = trackIndex(currentAlbum, currentSongFromAlbum);
+    currentSongIndex++;
+
+    // account for the next song being the first song, as when you're on the final song, you should wrap around to the first song
+    if(currentSongIndex >= currentAlbum.songs.length) { currentSongIndex = 0; }
+
+    // set the new current song to currentSongFromAlbum
+    setSong(currentSongIndex + 1);
+
+    // play songs when skipping
+    currentSoundFile.play();
+    updateSeekBarWhileSongPlays();
+
+    // update the player bar to show the new song
+    updatePlayerBarSong();
+
+    // update the html of the previous song's '.song-item-number' element with a number
+    var lastSongNumber = getLastSongNumber(currentSongIndex);
+
+    var $nextSongNumberCell = getSongNumberCell(currentlyPlayingSongNumber);
+
+    var $lastSongNumberCell = getSongNumberCell(lastSongNumber);
+    $lastSongNumberCell.html(lastSongNumber);
+
+    // update the html of the new song's '.song-item-number' element with a pause button
+    $nextSongNumberCell.html(pauseButtonTemplate);
+};
+
+var previousSong = function() {
+
+    // find & store the last song
+    var getLastSongNumber = function(index) {
+        return index ==  (currentAlbum.songs.length - 1) ? 1 : index + 2 ;
+    };
+
+    // use trackIndex() to get the current song's index & then decrement the value of the index
+    var currentSongIndex = trackIndex(currentAlbum, currentSongFromAlbum);
+    currentSongIndex--;
+
+    //account for the previous song being the last song, as when you're on the first song, you should wrap around to the last song
+    if(currentSongIndex < 0) {currentSongIndex = currentAlbum.songs.length - 1;}
+
+    // set the new current song to currentSongFromAlbum
+    setSong(currentSongIndex + 1);
+
+    // play songs when skipping
+    currentSoundFile.play();
+    updateSeekBarWhileSongPlays();
+
+    // update the player bar to show the new song
+    updatePlayerBarSong();
+
+    // update the html of the following song's '.song-item-number' element with a number
+    var lastSongNumber = getLastSongNumber(currentSongIndex);
+
+    var $previousSongNumberCell = getSongNumberCell(currentlyPlayingSongNumber);
+
+    var $lastSongNumberCell = getSongNumberCell(lastSongNumber);
+    $lastSongNumberCell.html(lastSongNumber);
+
+    // update the html of the new song's '.song-item-number' element with a pause button
+    $previousSongNumberCell.html(pauseButtonTemplate);
+
+};
+
+
+// updates player bar text to show current song title & for mobile devices - song title + artist
+var updatePlayerBarSong = function() {
+
+    // change currently playing song name to currentSongFromAlbum's title
+    $('.currently-playing .song-name').text(currentSongFromAlbum.title);
+
+    // change the content of the '.artist-name' to currentAlbum.artist
+    $('.currently-playing .artist-name').text(currentAlbum.artist);
+
+    // change content of the '.artist-song-mobile' to song title & artist
+    $('.currently-playing .artist-song-mobile').text(currentSongFromAlbum.title + ' - ' + currentAlbum.artist);
+
+    // change play icon to pause on player bar
+    $('.main-controls .play-pause').html(playerBarPauseButton);
+
+    // update total time info when a song plays
+    var totalTime = currentSongFromAlbum.duration;
+    setTotalTimeInPlayerBar(filterTimeCode(totalTime));
+};
+
+var setCurrentTimeInPlayerBar = function(currentTime) {
+    // sets the text of the element '.current-time' class to the current time in the song
+    $('.current-time').text(currentTime);
+};
+
+var setTotalTimeInPlayerBar = function(totalTime) {
+    // sets the text of the element '.total-time' class to length of song
+    $('.total-time').text(totalTime);
+};
+
+var filterTimeCode = function(timeInSeconds) {
+
+    // use parseFloat() to get the seconds in number form
+    timeInSeconds = parseFloat(timeInSeconds);
+
+    // store variables for whole seconds and whole minutes *use Math.floor() to round numbers DOWN
+    var minutes = Math.floor(timeInSeconds / 60);
+
+    var seconds = Math.floor((timeInSeconds % 60));
+    if(seconds < 10){
+        seconds = '0' + seconds;
+    };
+
+    // return the time in the format: 'X:XX'
+    return minutes + ':' + seconds;
+};
+
 var updateSeekBarWhileSongPlays = function() {
     if (currentSoundFile) {
 
@@ -163,6 +294,10 @@ var updateSeekBarWhileSongPlays = function() {
             var $seekBar = $('.seek-control .seek-bar');
 
             updateSeekBarPercentage($seekBar, seekBarFillRatio);
+
+            // display current playback time in seconds
+            var currentTime = this.getTime();
+            setCurrentTimeInPlayerBar(filterTimeCode(currentTime));
         });
     }
 };
@@ -246,108 +381,11 @@ var setupSeekBars = function() {
     });
 };
 
+// ---------------- HELPER FUNCTIONS --------------------------
+
 // returns the index of a song found in the album's song array
 var trackIndex = function(album, song) {
     return album.songs.indexOf(song);
-};
-
-var nextSong = function() {
-
-    // find & store the last song played
-    var getLastSongNumber = function(index) {
-        return index == 0 ? currentAlbum.songs.length : index;
-    };
-
-    // use trackIndex() to get the current song's index & then increment the value of the index
-    var currentSongIndex = trackIndex(currentAlbum, currentSongFromAlbum);
-    currentSongIndex++;
-
-    // account for the next song being the first song, as when you're on the final song, you should wrap around to the first song
-    if(currentSongIndex >= currentAlbum.songs.length) { currentSongIndex = 0; }
-
-    // set the new current song to currentSongFromAlbum
-    setSong(currentSongIndex + 1);
-
-    // play songs when skipping
-    currentSoundFile.play();
-    updateSeekBarWhileSongPlays();
-
-    // update the player bar to show the new song
-    updatePlayerBarSong();
-
-    // update the html of the previous song's '.song-item-number' element with a number
-    var lastSongNumber = getLastSongNumber(currentSongIndex);
-
-    var $nextSongNumberCell = getSongNumberCell(currentlyPlayingSongNumber);
-
-    var $lastSongNumberCell = getSongNumberCell(lastSongNumber);
-    $lastSongNumberCell.html(lastSongNumber);
-
-    // update the html of the new song's '.song-item-number' element with a pause button
-    $nextSongNumberCell.html(pauseButtonTemplate);
-};
-
-var previousSong = function() {
-
-    // find & store the last song
-    var getLastSongNumber = function(index) {
-        return index ==  (currentAlbum.songs.length - 1) ? 1 : index + 2 ;
-    };
-
-    // use trackIndex() to get the current song's index & then decrement the value of the index
-    var currentSongIndex = trackIndex(currentAlbum, currentSongFromAlbum);
-    currentSongIndex--;
-
-    //account for the previous song being the last song, as when you're on the first song, you should wrap around to the last song
-    if(currentSongIndex < 0) {currentSongIndex = currentAlbum.songs.length - 1;}
-
-    // set the new current song to currentSongFromAlbum
-    setSong(currentSongIndex + 1);
-
-    // play songs when skipping
-    currentSoundFile.play();
-    updateSeekBarWhileSongPlays();
-
-    // update the player bar to show the new song
-    updatePlayerBarSong();
-
-    // update the html of the following song's '.song-item-number' element with a number
-    var lastSongNumber = getLastSongNumber(currentSongIndex);
-
-    var $previousSongNumberCell = getSongNumberCell(currentlyPlayingSongNumber);
-
-    var $lastSongNumberCell = getSongNumberCell(lastSongNumber);
-    $lastSongNumberCell.html(lastSongNumber);
-
-    // update the html of the new song's '.song-item-number' element with a pause button
-    $previousSongNumberCell.html(pauseButtonTemplate);
-
-};
-
-var setSong = function(songNumber) {
-
-    // check if a song is already playing
-    if(currentSoundFile) {
-        // if true - stop the song
-        currentSoundFile.stop();
-    }
-
-    // assign value to currentlyPlayingSongNumber
-    currentlyPlayingSongNumber = parseInt(songNumber);
-
-    // assign value to currentSongFromAlbum
-    currentSongFromAlbum = currentAlbum.songs[songNumber - 1];
-
-    // assign new Buzz 'sound' object
-    currentSoundFile = new buzz.sound(currentSongFromAlbum.audioURL, {
-        // indicates song file type
-        formats: ['mp3'],
-        // tells Buzz to load the songs as soon as the page loads
-        preload: true
-    });
-
-    // control song volume
-    setVolume(currentVolume);
 };
 
 // change the position in a song's playback to a specified time
@@ -368,13 +406,12 @@ var getSongNumberCell = function(number){
     return $('.song-item-number[data-song-number="' + number + '"]');
 };
 
+// ---------------- END HELPER FUNCTIONS ------------------------
+
 // Album button templates
 var playButtonTemplate = '<a class="album-song-button"><span class="ion-play"></span></a>';
-
 var pauseButtonTemplate = '<a class="album-song-button"><span class="ion-pause"></span></a>';
-
 var playerBarPlayButton = '<span class="ion-play"></span>';
-
 var playerBarPauseButton = '<span class="ion-pause"></span>';
 
 // Placeholder for current album
