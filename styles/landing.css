@@ -1,11 +1,11 @@
 body.landing {
-    background-color: rgb(58,23,63);
+    background-color: rgb(30,49,79);
 }
 
 .hero-content {
     position: relative;
     min-height: 600px;
-    background-image: url(../assets/images/bloc_jams_bg.jpg);
+    background-image: url(../assets/images/BW_headphones.jpg);
     background-repeat: no-repeat;
     background-position: center center;
     background-size: cover;
@@ -33,7 +33,7 @@ body.landing {
 }
 
 .hero-title:hover {
-    color: rgb(233,50,117);
+    color: rgb(170, 134, 3);
     font-size: 5rem;
     font-weight: 600;
 }
@@ -65,7 +65,7 @@ body.landing {
 .ion-music-note,
 .ion-radio-waves,
 .ion-iphone {
-    color: rgb(233,50,117);
+    color: rgb(170, 134, 3);
     font-size: 5rem;
 }
 
