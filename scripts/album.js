@@ -368,6 +368,33 @@ var getSongNumberCell = function(number){
     return $('.song-item-number[data-song-number="' + number + '"]');
 };
 
+var togglePlayFromPlayerBar = function() {
+    // if song is paused & play button is clicked
+    if (currentSoundFile.isPaused()) {
+
+        // change song number cell from play to pause icon
+        $((getSongNumberCell(currentlyPlayingSongNumber))).html(pauseButtonTemplate);
+
+        // change html of player bar's play button to pause
+        $('.main-controls .play-pause').html(playerBarPauseButton);
+
+        // play the song
+        currentSoundFile.play();
+
+    } // else - if song is playing & pause button is clicked
+    else {
+
+        // change song number cell from pause to play icon
+        $((getSongNumberCell(currentlyPlayingSongNumber))).html(playButtonTemplate);
+
+        // change html of player bar's pause button to play
+        $('.main-controls .play-pause').html(playerBarPlayButton);
+
+        // pause the song
+        currentSoundFile.pause();
+    }
+};
+
 // Album button templates
 var playButtonTemplate = '<a class="album-song-button"><span class="ion-play"></span></a>';
 
@@ -392,13 +419,15 @@ var currentSoundFile = null;
 // Set initial song volume - Buzz 1-100 scale
 var currentVolume = 80;
 
-// Variables to hold jQuery selectors for next & previous buttons
+// Variables to hold jQuery selectors for next, previous & play/pause buttons on player bar
 var $previousButton = $('.main-controls .previous');
 var $nextButton = $('.main-controls .next');
+var $playPauseButton = $('.main-controls .play-pause');
 
 $(document).ready(function() {
     setCurrentAlbum(albumPicasso);
     $previousButton.click(previousSong);
     $nextButton.click(nextSong);
+    $playPauseButton.click(togglePlayFromPlayerBar);
     setupSeekBars();
 });
