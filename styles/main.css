@@ -28,7 +28,7 @@ body {
 .navbar .logo {
     position: relative;
     top: 1rem;
-    left: 0;
+    left: 2rem;
     cursor: pointer; /* produces the finger pointer icon when you hover over the logo */
 }
 
@@ -36,7 +36,7 @@ body {
     display: table;
     position: absolute;
     top: 0;
-    right: 0;
+    right: 2rem;
     height: 150px;
     color: white;
     /* #3 */

@@ -1,23 +1,17 @@
 body.album {
-    background-image: url(../assets/images/blurred_backgrounds/blur_bg_3.jpg);
-    background-repeat: no-repeat;
-    background-attachment: fixed;
-    background-position: center center;
-    background-size: cover;
-    padding-bottom: 200px;
+    background-color: rgb(30,49,79);
 }
 
 .album-cover-art {
     position: relative;
-    left: 20%;
-    margin-top: 1rem;
+    left: 35%;
+    margin-top: 0;
     width: 60%;
 }
 
 .album-view-details {
     position: relative;
-    top: 1.5rem;
-    padding: 1rem;
+
 }
 
 .album-view-details .album-view-title {
@@ -37,7 +31,7 @@ body.album {
 
 .album-view-song-list {
     width: 90%;
-    margin: 1.5rem auto;
+    margin: 1.5rem auto 150px;
     font-weight: 300;
     font-size: 0.75em;
     border-collapse: collapse;
