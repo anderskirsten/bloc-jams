@@ -2,7 +2,7 @@ Bloc Jams is an online music player built with raw javascript, jquery, html and 
 
 This is the first project I built within the Bloc Web Developer Mentor Program.
 
-Visit the page online at https://bloc-jams-kmanderson.netlify.com/
+Visit the page online at https://anderskirsten.github.io/bloc-jams/
 
 Email me at anders.kirsten@gmail.com
 
