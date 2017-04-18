@@ -10,7 +10,7 @@ html {
 }
 
 body {
-    font-family: 'Open Sans';
+    font-family: 'Open Sans', sans-serif;
     color: white;
     min-height: 100%;
 }
