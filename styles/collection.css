@@ -1,5 +1,9 @@
-body.collection {
-    background-color: rgb(30,49,79);
+body {
+    background-image: url(../assets/images/blurred_backgrounds/blur_bg_2.jpg);
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-position: center center;
+    background-size: cover;
 }
 
 .album-covers {

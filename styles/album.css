@@ -1,5 +1,9 @@
 body.album {
-    background-color: rgb(30,49,79);
+    background-image: url(../assets/images/blurred_backgrounds/blur_bg_3.jpg);
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-position: center center;
+    background-size: cover;
 }
 
 .album-cover-art {
