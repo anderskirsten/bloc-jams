@@ -4,8 +4,7 @@ body.collection {
 
 .album-covers {
     position: relative;
-    margin-top: 1rem;
-    margin-left: 5rem;
+    margin-left: 3em;
 }
 
 collection-album-container {
