@@ -23,6 +23,7 @@ body {
     background-color: rgb(101,18,95,0.5);
     /* #2 */
     z-index: 1;
+    min-height: 130px;
 }
 
 .navbar .logo {
@@ -63,7 +64,7 @@ body {
 
 /* #5 */
 .links-container .navbar-link:hover {
-    color: rgb(170, 134, 3);
+    color: rgb(233,50,117);
     font-size: 1rem;
 }
 

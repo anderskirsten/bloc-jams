@@ -8,7 +8,7 @@ var buildCollectionItemTemplate = function() {
   + '        <br/>'
   + '        <a href="album.html"> Pablo Picasso </a>'
   + '        <br/>'
-  + '        X songs'
+  + '        5 songs'
   + '        <br/>'
   + '      </p>'
   + '   </div>'

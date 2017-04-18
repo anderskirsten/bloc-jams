@@ -8,6 +8,7 @@ body.collection {
 
 .album-covers {
     position: relative;
+    margin-left: 3em;
 }
 
 collection-album-container {
